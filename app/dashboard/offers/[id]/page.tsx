@@ -1,6 +1,6 @@
+import OfferDetailPage from "@/components/offers/offer-detail-page"
+import { allOffers } from "@/components/offers/offers-list"
 import { notFound } from "next/navigation"
-import { OfferDetailPage } from "../components/offer-detail-page"
-import { allOffers } from "../components/offers-list"
 
 interface OfferPageProps {
   params: {

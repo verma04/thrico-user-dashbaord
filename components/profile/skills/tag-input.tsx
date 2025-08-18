@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { X } from 'lucide-react'
-import { suggestedTags } from "@/data/skill-data"
+
 import { Button } from "@/components/ui/button"
 
 interface TagInputProps {
@@ -50,7 +50,14 @@ export const TagInput: React.FC<TagInputProps> = ({
     }
   }
 
-  const currentSuggestedTags = category ? suggestedTags[category] || [] : []
+  // Example suggestedTags object. Replace or extend categories/tags as needed.
+  const suggestedTags: { [key: string]: string[] } = {
+    frontend: ["React", "Vue", "Angular", "TypeScript"],
+    backend: ["Node.js", "Express", "Django", "Flask"],
+    devops: ["Docker", "Kubernetes", "AWS", "Azure"],
+  }
+  
+    const currentSuggestedTags = category ? suggestedTags[category] || [] : []
 
   return (
     <div className="grid gap-2">

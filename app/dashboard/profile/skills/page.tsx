@@ -22,6 +22,16 @@ import {
 import { v4 as uuidv4 } from "uuid"
 import { AddEditSkillForm } from "@/components/profile/skills/add-edit-skill-form"
 
+type Skill = {
+  id: string
+  name: string
+  category: string
+  level: string
+  tags: string[]
+  yearsOfExperience?: number
+  description?: string
+}
+
 export default function SkillsListPage() {
   const [skills, setSkills] = useState<Skill[]>([
     {

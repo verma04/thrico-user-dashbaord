@@ -13,9 +13,30 @@ import { X } from 'lucide-react'
 import { Formik, type FormikProps } from "formik"
 import * as Yup from "yup"
 import { v4 as uuidv4 } from "uuid"
-import { type Skill } from "@/types/skill"
-import { skillCategories, skillLevels } from "@/data/skill-data"
+
 import { TagInput } from "./tag-input"
+
+// Skill categories for the select dropdown
+const skillCategories = [
+  { value: "technical", label: "Technical" },
+  { value: "soft", label: "Soft" },
+  { value: "management", label: "Management" },
+  { value: "creative", label: "Creative" },
+  { value: "other", label: "Other" },
+]
+
+// Define the Skill type
+export interface Skill {
+  id: string
+  name: string
+  category: string
+  level: string
+  tags: string[]
+  yearsOfExperience?: number | null
+  description?: string
+  isOwner?: boolean
+  canEdit?: boolean
+}
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Please enter skill name"),
