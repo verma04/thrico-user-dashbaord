@@ -1,0 +1,16 @@
+services:
+  thrico-web-dashboard:
+    container_name: thrico-web-dashboard
+    image: thrico-web-dashboard
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # assuming your app runs on port 3000 inside the container
+    environment:
+      - NODE_ENV=production
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
