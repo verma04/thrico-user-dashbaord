@@ -218,7 +218,7 @@ export function FriendRequests() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <h2 className="text-xl font-semibold text-gray-900">
           Friend Requests ({filteredRequests.length})
         </h2>
@@ -227,17 +227,17 @@ export function FriendRequests() {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredRequests.map((request) => (
           <div
             key={request.id}
-            className="flex items-center space-x-3 p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-3 p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
           >
             <div 
               className="relative cursor-pointer"
               onClick={() => handleViewProfile(request)}
             >
-              <Avatar className="h-12 w-12">
+              <Avatar className="h-14 w-14 sm:h-12 sm:w-12">
                 <AvatarImage src={request.avatar || "/placeholder-user.jpg"} alt={request.name} />
                 <AvatarFallback>
                   {request.name
@@ -253,7 +253,7 @@ export function FriendRequests() {
               }`}></div>
             </div>
             
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 w-full">
               <div className="flex items-center gap-2">
                 <h4 
                   className="font-semibold text-base truncate cursor-pointer hover:text-blue-600 transition-colors"
@@ -270,7 +270,7 @@ export function FriendRequests() {
               <p className="text-xs text-gray-600 truncate">
                 {request.bio || "No bio"}{request.company ? ` at ${request.company}` : ""}
               </p>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex flex-wrap items-center gap-2 mt-1">
                 {request.location && (
                   <span className="flex items-center text-xs text-gray-500">
                     <MapPin className="h-3 w-3 mr-1" />
@@ -288,27 +288,24 @@ export function FriendRequests() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                <Button 
-                  onClick={() => handleAccept(request.id)}
-                  size="sm" 
-                  className="w-16 sm:w-20 text-xs sm:text-sm"
-                >
-                  <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                  Accept
-                </Button>
-                <Button 
-                  onClick={() => handleDecline(request.id)}
-                  variant="outline" 
-                  size="sm" 
-                  className="w-16 sm:w-20 text-xs sm:text-sm"
-                >
-                  <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                  Decline
-                </Button>
-              </div>
-              
+            <div className="flex flex-row sm:flex-col items-center gap-2 mt-2 sm:mt-0">
+              <Button 
+                onClick={() => handleAccept(request.id)}
+                size="sm" 
+                className="w-20 text-xs sm:text-sm"
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Accept
+              </Button>
+              <Button 
+                onClick={() => handleDecline(request.id)}
+                variant="outline" 
+                size="sm" 
+                className="w-20 text-xs sm:text-sm"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Decline
+              </Button>
               {/* Action Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

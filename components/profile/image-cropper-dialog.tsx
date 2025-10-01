@@ -1,69 +1,89 @@
-'use client'
+"use client";
 
-import React, { useState, useCallback } from 'react'
-import Cropper from 'react-easy-crop'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Slider } from '@/components/ui/slider'
-import { Label } from '@/components/ui/label'
-import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
+import React, { useState, useCallback } from "react";
+import Cropper from "react-easy-crop";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
+import { on } from "events";
 
 interface ImageCropperDialogProps {
-  imageSrc: string
-  aspectRatio: number
-  onCropComplete: (croppedImage: string) => void
-  onClose: () => void
-  title: string
-  open: boolean
+  imageSrc: string;
+  aspectRatio: number;
+  onCropComplete: (croppedImage: string) => void;
+  onClose: () => void;
+  title: string;
+  open: boolean;
 }
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
-    const image = new Image()
-    image.addEventListener('load', () => resolve(image))
-    image.addEventListener('error', (error) => reject(error))
-    image.setAttribute('crossOrigin', 'anonymous') // needed to avoid cross-origin issues
-    image.src = url
-  })
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.setAttribute("crossOrigin", "anonymous"); // needed to avoid cross-origin issues
+    image.src = url;
+  });
 
-async function getCroppedImg(imageSrc: string, pixelCrop: { x: number; y: number; width: number; height: number }, rotation = 0): Promise<string> {
-  const image = await createImage(imageSrc)
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+  rotation = 0
+): Promise<string> {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
   if (!ctx) {
-    throw new Error('No 2d context')
+    throw new Error("No 2d context");
   }
 
-  const rotationRad = rotation * (Math.PI / 180)
-  const { width: imageWidth, height: imageHeight } = image
+  const rotationRad = rotation * (Math.PI / 180);
+  const { width: imageWidth, height: imageHeight } = image;
 
   // calculate the size of the canvas to fit the rotated image
-  const sWidth = Math.abs(Math.cos(rotationRad) * imageWidth) + Math.abs(Math.sin(rotationRad) * imageHeight)
-  const sHeight = Math.abs(Math.sin(rotationRad) * imageWidth) + Math.abs(Math.cos(rotationRad) * imageHeight)
+  const sWidth =
+    Math.abs(Math.cos(rotationRad) * imageWidth) +
+    Math.abs(Math.sin(rotationRad) * imageHeight);
+  const sHeight =
+    Math.abs(Math.sin(rotationRad) * imageWidth) +
+    Math.abs(Math.cos(rotationRad) * imageHeight);
 
-  canvas.width = sWidth
-  canvas.height = sHeight
+  canvas.width = sWidth;
+  canvas.height = sHeight;
 
-  ctx.translate(sWidth / 2, sHeight / 2)
-  ctx.rotate(rotationRad)
-  ctx.drawImage(image, -imageWidth / 2, -imageHeight / 2)
+  ctx.translate(sWidth / 2, sHeight / 2);
+  ctx.rotate(rotationRad);
+  ctx.drawImage(image, -imageWidth / 2, -imageHeight / 2);
 
-  const data = ctx.getImageData(pixelCrop.x + (sWidth - imageWidth) / 2, pixelCrop.y + (sHeight - imageHeight) / 2, pixelCrop.width, pixelCrop.height)
+  const data = ctx.getImageData(
+    pixelCrop.x + (sWidth - imageWidth) / 2,
+    pixelCrop.y + (sHeight - imageHeight) / 2,
+    pixelCrop.width,
+    pixelCrop.height
+  );
 
-  canvas.width = pixelCrop.width
-  canvas.height = pixelCrop.height
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
 
-  ctx.clearRect(0, 0, pixelCrop.width, pixelCrop.height)
-  ctx.putImageData(data, 0, 0)
+  ctx.clearRect(0, 0, pixelCrop.width, pixelCrop.height);
+  ctx.putImageData(data, 0, 0);
 
   return new Promise((resolve) => {
     canvas.toBlob((file) => {
       if (file) {
-        resolve(URL.createObjectURL(file))
+        resolve(URL.createObjectURL(file));
       }
-    }, 'image/jpeg')
-  })
+    }, "image/jpeg");
+  });
 }
 
 export const ImageCropperDialog: React.FC<ImageCropperDialogProps> = ({
@@ -74,38 +94,56 @@ export const ImageCropperDialog: React.FC<ImageCropperDialogProps> = ({
   title,
   open,
 }) => {
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
-  const [rotation, setRotation] = useState(0)
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   const onCropChange = useCallback((crop: { x: number; y: number }) => {
-    setCrop(crop)
-  }, [])
+    setCrop(crop);
+  }, []);
 
   const onZoomChange = useCallback((zoom: number) => {
-    setZoom(zoom)
-  }, [])
+    setZoom(zoom);
+  }, []);
 
   const onRotationChange = useCallback((rotation: number) => {
-    setRotation(rotation)
-  }, [])
+    setRotation(rotation);
+  }, []);
 
-  const onCropAreaComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels)
-  }, [])
+  const onCropAreaComplete = useCallback(
+    (croppedArea: any, croppedAreaPixels: any) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
 
   const handleSave = useCallback(async () => {
     if (croppedAreaPixels) {
       try {
-        const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, rotation)
-        onCropComplete(croppedImage)
-        onClose()
+        // 1. Get the cropped image as a blob URL
+        const croppedImageUrl = await getCroppedImg(
+          imageSrc,
+          croppedAreaPixels,
+          rotation
+        );
+        // 2. Convert blob URL to File
+        const response = await fetch(croppedImageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+  onCropComplete(file);
+
+        // onClose();
       } catch (e) {
-        console.error(e)
+        console.error(e);
       }
     }
-  }, [imageSrc, croppedAreaPixels, rotation, onCropComplete, onClose])
+  }, [imageSrc, croppedAreaPixels, rotation, onCropComplete, onClose]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -130,7 +168,9 @@ export const ImageCropperDialog: React.FC<ImageCropperDialogProps> = ({
         </div>
         <div className="flex flex-col gap-4 p-4 border-t">
           <div className="flex items-center gap-4">
-            <Label htmlFor="zoom-slider" className="w-16">Zoom</Label>
+            <Label htmlFor="zoom-slider" className="w-16">
+              Zoom
+            </Label>
             <Slider
               id="zoom-slider"
               min={1}
@@ -140,11 +180,25 @@ export const ImageCropperDialog: React.FC<ImageCropperDialogProps> = ({
               onValueChange={([val]) => setZoom(val)}
               className="flex-1"
             />
-            <Button variant="ghost" size="icon" onClick={() => setZoom(prev => Math.max(1, prev - 0.1))}><ZoomOut className="w-4 h-4" /></Button>
-            <Button variant="ghost" size="icon" onClick={() => setZoom(prev => Math.min(3, prev + 0.1))}><ZoomIn className="w-4 h-4" /></Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setZoom((prev) => Math.max(1, prev - 0.1))}
+            >
+              <ZoomOut className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setZoom((prev) => Math.min(3, prev + 0.1))}
+            >
+              <ZoomIn className="w-4 h-4" />
+            </Button>
           </div>
           <div className="flex items-center gap-4">
-            <Label htmlFor="rotation-slider" className="w-16">Rotation</Label>
+            <Label htmlFor="rotation-slider" className="w-16">
+              Rotation
+            </Label>
             <Slider
               id="rotation-slider"
               min={0}
@@ -154,7 +208,9 @@ export const ImageCropperDialog: React.FC<ImageCropperDialogProps> = ({
               onValueChange={([val]) => setRotation(val)}
               className="flex-1"
             />
-            <Button variant="ghost" size="icon" onClick={() => setRotation(0)}><RotateCcw className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => setRotation(0)}>
+              <RotateCcw className="w-4 h-4" />
+            </Button>
           </div>
         </div>
         <DialogFooter>
@@ -165,5 +221,5 @@ export const ImageCropperDialog: React.FC<ImageCropperDialogProps> = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

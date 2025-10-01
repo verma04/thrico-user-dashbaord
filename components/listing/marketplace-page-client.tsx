@@ -7,6 +7,8 @@ import { MarketplaceFilterModal } from "@/components/listing/marketplace-filter-
 import { ListingTabs } from "@/components/listing/listing-tabs"
 import { MarketplaceList } from "@/components/listing/listing-list"
 import { ListingSidebar } from "@/components/listing/list-sidebar"
+import { ResponsiveTabs, TabItem } from "../ui/responsive-tabs"
+import { Bookmark, CheckCircle, Search, Star, TrendingUp, User } from "lucide-react"
 
 interface MarketplaceFilterState {
   searchText: string
@@ -77,6 +79,44 @@ export function MarketplacePageClient({ currentTab }: MarketplacePageClientProps
     })
   }
 
+  const tabs: TabItem[] = [
+  {
+    value: "discover",
+    label: "Discover",
+    icon: Search,
+    description: "Explore all available listings",
+  },
+  {
+    value: "trending",
+    label: "Trending",
+    icon: TrendingUp,
+    description: "Most popular and active listings",
+  },
+  {
+    value: "featured",
+    label: "Featured",
+    icon: Star,
+    description: "Hand-picked and highlighted opportunities",
+  },
+  {
+    value: "my-listings",
+    label: "My Listings",
+    icon: User,
+    description: "Listings you have posted",
+  },
+  {
+    value: "applied",
+    label: "Enquiry",
+    icon: CheckCircle,
+    description: "Listings you have applied for",
+  },
+  {
+    value: "saved",
+    label: "Saved",
+    icon: Bookmark,
+    description: "Your saved listings",
+  },
+];
   return (
     <div className="p-4 md:p-6">
       <ListingHeader />
@@ -91,7 +131,11 @@ export function MarketplacePageClient({ currentTab }: MarketplacePageClientProps
         onClearAll={handleClearAll}
       />
       
-      <ListingTabs currentTab={currentTab} />
+    <ResponsiveTabs
+           tabs={tabs}
+           currentTab={"discover"}
+           baseUrl="/dashboard/listings"
+         />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-4">

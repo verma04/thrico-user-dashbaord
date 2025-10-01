@@ -19,8 +19,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { v4 as uuidv4 } from "uuid"
-import AddExperienceForm from "@/components/profile/experience/add-experience-form"
-import EditExperienceForm from "@/components/profile/experience/edit-experience-form"
+
 
 export default function ExperienceListPage() {
   const [experiences, setExperiences] = useState([

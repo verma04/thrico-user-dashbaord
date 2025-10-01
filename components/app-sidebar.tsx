@@ -25,6 +25,7 @@ import {
 import { Home, Users, Calendar, MessageSquare, Briefcase, Settings, LogOut, ShoppingBag, Rss, UserCheck, Gift, User, ClipboardList, FileText, Newspaper, Heart, Trophy, Network, UserPlus, UserX } from 'lucide-react'
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useGetOrgDetails, useGetUser } from "./grapqhl/action"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -33,7 +34,7 @@ const navigation = [
   { name: "Communities", href: "/dashboard/communities", icon: Users },
   { name: "Events", href: "/dashboard/events", icon: Calendar },
   { name: "Discussions", href: "/dashboard/discussions", icon: MessageSquare },
-  { name: "Marketplace", href: "/dashboard/marketplace", icon: ShoppingBag },
+  { name: "Marketplace", href: "/dashboard/listing", icon: ShoppingBag },
   { name: "Jobs", href: "/dashboard/jobs", icon: Briefcase },
   { name: "Offers", href: "/dashboard/offers", icon: Gift },
   { name: "Network", href: "/dashboard/network", icon: Network },
@@ -48,7 +49,15 @@ const navigation = [
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+
   const pathname = usePathname()
+
+  const { data: { getUser } = {}, loading, error } = useGetUser();
+
+  const { data: { getOrgDetails } = {} } = useGetOrgDetails();
+
+
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -57,11 +66,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-sidebar-primary-foreground">
-                  <span className="text-white font-bold text-sm">T</span>
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-r text-sidebar-primary-foreground">
+                   <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarImage src={`https://cdn.thrico.network/${getOrgDetails?.logo}`} className="object-contain" alt="Sarah Chen" />
+                      <AvatarFallback className="rounded-lg">SC</AvatarFallback>
+                    </Avatar>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Thrico</span>
+                  <span className="truncate font-semibold">{getOrgDetails?.name}</span>
                   <span className="truncate text-xs">Community Platform</span>
                 </div>
               </Link>
@@ -100,12 +112,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Sarah Chen" />
+                    <AvatarImage src={`https://cdn.thrico.network/${getUser?.avatar}`} alt="Sarah Chen" />
                     <AvatarFallback className="rounded-lg">SC</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Sarah Chen</span>
-                    <span className="truncate text-xs">sarah@example.com</span>
+                    <span className="truncate font-semibold">{getUser?.firstName} {getUser?.lastName}</span>
+                    <span className="truncate text-xs">{getUser?.email}</span>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -118,12 +130,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Sarah Chen" />
+                      <AvatarImage src={`https://cdn.thrico.network/${getUser?.avatar}`} alt="Sarah Chen" />
                       <AvatarFallback className="rounded-lg">SC</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">Sarah Chen</span>
-                      <span className="truncate text-xs">sarah@example.com</span>
+                      <span className="truncate font-semibold">{getUser?.firstName} {getUser?.lastName}</span>
+                      <span className="truncate text-xs">{getUser?.email}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>

@@ -1,142 +1,140 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { EducationAutocomplete } from "./education-autocomplete"
+import { Education } from "../../types/education"
 
 interface EditEducationFormProps {
-  educationData: any // Replace 'any' with a proper type for education
-  onSave: (data: any) => void
-  onCancel: () => void
+  education: Education;
+  onSave: (education: Education) => void;
+  onCancel: () => void;
 }
 
-export default function EditEducationForm({ educationData, onSave, onCancel }: EditEducationFormProps) {
-  const [school, setSchool] = useState(educationData.school || "")
-  const [degree, setDegree] = useState(educationData.degree || "")
-  const [grade, setGrade] = useState(educationData.grade || "")
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date } | undefined>(
-    educationData.period && educationData.period.includes(" - ")
-      ? {
-          from: new Date(educationData.period.split(" - ")[0]),
-          to: new Date(educationData.period.split(" - ")[1]),
-        }
-      : undefined,
-  )
-  const [activities, setActivities] = useState(educationData.activities || "")
-  const [description, setDescription] = useState(educationData.description || "")
-
-  useEffect(() => {
-    // Update state if educationData changes
-    setSchool(educationData.school || "")
-    setDegree(educationData.degree || "")
-    setGrade(educationData.grade || "")
-    setDateRange(
-      educationData.period && educationData.period.includes(" - ")
-        ? {
-            from: new Date(educationData.period.split(" - ")[0]),
-            to: new Date(educationData.period.split(" - ")[1]),
-          }
-        : undefined,
-    )
-    setActivities(educationData.activities || "")
-    setDescription(educationData.description || "")
-  }, [educationData])
+export function EditEducationForm({ education, onSave, onCancel }: EditEducationFormProps) {
+  const [formData, setFormData] = useState({
+    school: education.school,
+    degree: education.degree,
+    grade: education.grade,
+    startDate: education.duration[0],
+    endDate: education.duration[1],
+    activities: education.activities,
+    description: education.description || ""
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const updatedData = {
-      ...educationData, // Keep existing ID and other properties
-      school,
-      degree,
-      grade,
-      period:
-        dateRange?.from && dateRange.to ? `${format(dateRange.from, "yyyy")} - ${format(dateRange.to, "yyyy")}` : "",
-      activities,
-      description,
+    
+    const updatedEducation: Education = {
+      ...education,
+      school: formData.school,
+      degree: formData.degree,
+      grade: formData.grade,
+      duration: [formData.startDate, formData.endDate],
+      activities: formData.activities,
+      description: formData.description
     }
-    onSave(updatedData)
+
+    onSave(updatedEducation)
   }
 
+  const isFormValid = formData.school.name && formData.degree && formData.grade && formData.startDate && formData.endDate && formData.activities
+
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Edit Education</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="school">School/Institute</Label>
-            <Input id="school" value={school} onChange={(e) => setSchool(e.target.value)} required />
+          <div className="space-y-2">
+            <Label htmlFor="school">School/Institute *</Label>
+            <EducationAutocomplete
+              initialValue={formData.school}
+              onChange={(school) => setFormData({ ...formData, school })}
+              placeholder="Search for a School/Institute"
+            />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="degree">Degree</Label>
-            <Input id="degree" value={degree} onChange={(e) => setDegree(e.target.value)} required />
+
+          <div className="space-y-2">
+            <Label htmlFor="degree">Degree *</Label>
+            <Input
+              id="degree"
+              value={formData.degree}
+              onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+              placeholder="e.g. Bachelor of Science"
+              required
+            />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="grade">Grade/GPA</Label>
-            <Input id="grade" value={grade} onChange={(e) => setGrade(e.target.value)} required />
+
+          <div className="space-y-2">
+            <Label htmlFor="grade">Grade *</Label>
+            <Input
+              id="grade"
+              value={formData.grade}
+              onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+              placeholder="e.g. 3.8 GPA, First Class"
+              required
+            />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="duration">Duration</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="duration"
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dateRange?.from && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(dateRange.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Start Date *</Label>
+              <Input
+                id="startDate"
+                type="month"
+                value={formData.startDate}
+                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="endDate">End Date *</Label>
+              <Input
+                id="endDate"
+                type="month"
+                value={formData.endDate}
+                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                required
+              />
+            </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="activities">Activities</Label>
-            <Textarea id="activities" value={activities} onChange={(e) => setActivities(e.target.value)} rows={3} />
+
+          <div className="space-y-2">
+            <Label htmlFor="activities">Activities and Societies *</Label>
+            <Textarea
+              id="activities"
+              value={formData.activities}
+              onChange={(e) => setFormData({ ...formData, activities: e.target.value })}
+              placeholder="Describe your activities, societies, and achievements"
+              rows={3}
+              required
+            />
           </div>
-          <div className="grid gap-2">
+
+          <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} />
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Additional details about your education"
+              rows={3}
+            />
           </div>
-          <div className="flex justify-end gap-2">
+
+          <div className="flex justify-center gap-4 pt-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={!isFormValid}>
+              Save Changes
+            </Button>
           </div>
         </form>
       </CardContent>

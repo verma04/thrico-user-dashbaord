@@ -1,14 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   PartyPopper,
   Briefcase,
@@ -20,13 +26,16 @@ import {
   Award,
   ArrowLeft,
   Camera,
-} from "lucide-react"
-import { usePostStore } from "@/lib/post-store"
-import { useCelebrationStore, type CelebrationType } from "@/lib/celebration-store"
+} from "lucide-react";
+import { usePostStore } from "@/lib/post-store";
+import {
+  useCelebrationStore,
+  type CelebrationType,
+} from "@/lib/celebration-store";
 
 interface CelebrationCreationModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const celebrationIcons = {
@@ -38,10 +47,13 @@ const celebrationIcons = {
   achievement: Trophy,
   promotion: TrendingUp,
   graduation: GraduationCap,
-}
+};
 
-export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCreationModalProps) {
-  const { setCelebration, selectPostType } = usePostStore()
+export function CelebrationCreationModal({
+  open,
+  onOpenChange,
+}: CelebrationCreationModalProps) {
+  const { setCelebration, selectPostType, setDescription } = usePostStore();
   const {
     celebrationData,
     availableTypes,
@@ -50,48 +62,51 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
     setCelebrationDescription,
     resetCelebration,
     getCelebrationTypeData,
-  } = useCelebrationStore()
+  } = useCelebrationStore();
 
-  const [step, setStep] = useState<"type" | "image" | "details">("type")
+  const [step, setStep] = useState<"type" | "image" | "details">("type");
 
   const handleTypeSelect = (type: CelebrationType) => {
-    setCelebrationType(type)
-    setStep("image")
-  }
+    setCelebrationType(type);
+    setStep("image");
+    console.log(type);
+  };
 
   const handleImageSelect = (image: string) => {
-    setSelectedImage(image)
-    setStep("details")
-  }
+    setSelectedImage(image);
+    setStep("details");
+  };
 
   const handleSave = () => {
     if (celebrationData.type && celebrationData.selectedImage) {
       setCelebration({
         type: celebrationData.type,
         image: celebrationData.selectedImage,
-      })
-      selectPostType("celebrate")
-      onOpenChange(false)
-      resetCelebration()
-      setStep("type")
+      });
+      selectPostType("celebrate");
+      onOpenChange(false);
+      resetCelebration();
+      setStep("type");
     }
-  }
+  };
 
   const handleCancel = () => {
-    onOpenChange(false)
-    resetCelebration()
-    setStep("type")
-  }
+    onOpenChange(false);
+    resetCelebration();
+    setStep("type");
+  };
 
   const handleBack = () => {
     if (step === "image") {
-      setStep("type")
+      setStep("type");
     } else if (step === "details") {
-      setStep("image")
+      setStep("image");
     }
-  }
+  };
 
-  const typeData = celebrationData.type ? getCelebrationTypeData(celebrationData.type) : null
+  const typeData = celebrationData.type
+    ? getCelebrationTypeData(celebrationData.type)
+    : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -99,7 +114,12 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-center gap-3">
             {step !== "type" && (
-              <Button variant="ghost" size="sm" onClick={handleBack} className="h-8 w-8 p-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="h-8 w-8 p-0"
+              >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
@@ -116,10 +136,12 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
             {/* Step 1: Type Selection */}
             {step === "type" && (
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">What are you celebrating?</p>
+                <p className="text-sm text-muted-foreground">
+                  What are you celebrating?
+                </p>
                 <div className="grid grid-cols-1 gap-3">
                   {availableTypes.map((option) => {
-                    const IconComponent = celebrationIcons[option.id] || Star
+                    const IconComponent = celebrationIcons[option.id] || Star;
                     return (
                       <Card
                         key={option.id}
@@ -133,12 +155,14 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
                             </div>
                             <div className="flex-1">
                               <h3 className="font-medium">{option.title}</h3>
-                              <p className="text-sm text-muted-foreground">{option.description}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {option.description}
+                              </p>
                             </div>
                           </div>
                         </CardContent>
                       </Card>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -151,7 +175,9 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
                   <Badge variant="secondary" className="mb-2">
                     {typeData.title}
                   </Badge>
-                  <p className="text-sm text-muted-foreground">Choose an image for your celebration</p>
+                  <p className="text-sm text-muted-foreground">
+                    Choose an image for your celebration
+                  </p>
                 </div>
 
                 {/* Selected Image Preview */}
@@ -196,7 +222,9 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
                     <div className="flex flex-col items-center gap-2 text-center">
                       <Camera className="h-8 w-8 text-muted-foreground" />
                       <p className="text-sm font-medium">Upload Custom Image</p>
-                      <p className="text-xs text-muted-foreground">Choose your own celebration image</p>
+                      <p className="text-xs text-muted-foreground">
+                        Choose your own celebration image
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -210,7 +238,9 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
                   <Badge variant="secondary" className="mb-2">
                     {typeData.title}
                   </Badge>
-                  <p className="text-sm text-muted-foreground">Add details to your celebration</p>
+                  <p className="text-sm text-muted-foreground">
+                    Add details to your celebration
+                  </p>
                 </div>
 
                 {/* Preview */}
@@ -230,7 +260,10 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
                   <Textarea
                     id="description"
                     value={celebrationData.description}
-                    onChange={(e) => setCelebrationDescription(e.target.value)}
+                    onChange={(e) => {
+                      setCelebrationDescription(e.target.value);
+                      setDescription(e.target.value);
+                    }}
                     placeholder="Share what you're celebrating..."
                     rows={4}
                   />
@@ -240,17 +273,22 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
                 <div className="space-y-2">
                   <Label className="text-sm">Suggested descriptions:</Label>
                   <div className="space-y-2">
-                    {typeData.suggestedDescriptions.slice(0, 3).map((suggestion, index) => (
-                      <Card
-                        key={index}
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() => setCelebrationDescription(suggestion)}
-                      >
-                        <CardContent className="p-3">
-                          <p className="text-sm">{suggestion}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
+                    {typeData.suggestedDescriptions
+                      .slice(0, 3)
+                      .map((suggestion, index) => (
+                        <Card
+                          key={index}
+                          className="cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={() => {
+                            setCelebrationDescription(suggestion);
+                            setDescription(suggestion);
+                          }}
+                        >
+                          <CardContent className="p-3">
+                            <p className="text-sm">{suggestion}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -263,12 +301,15 @@ export function CelebrationCreationModal({ open, onOpenChange }: CelebrationCrea
             Cancel
           </Button>
           {step === "details" && (
-            <Button onClick={handleSave} disabled={!celebrationData.selectedImage}>
+            <Button
+              onClick={handleSave}
+              disabled={!celebrationData.selectedImage}
+            >
               Create Celebration
             </Button>
           )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

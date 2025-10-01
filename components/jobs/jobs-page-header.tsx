@@ -1,7 +1,9 @@
 import { JobHeader } from "./job-header"
 import { JobSearchAndFilters } from "./job-search-and-filters"
-import { JobTabs } from "./job-tabs"
+
 import { JobFilterState } from "./job-filter-modal"
+import { ResponsiveTabs, TabItem } from "../ui/responsive-tabs"
+import { Bookmark, CheckCircle, Search, Star, TrendingUp, User } from "lucide-react"
 
 interface JobsPageHeaderProps {
   currentTab: string
@@ -11,7 +13,44 @@ interface JobsPageHeaderProps {
   onFiltersChange: (filters: JobFilterState) => void
   resultCount: number
 }
-
+  const tabs: TabItem[] = [
+  {
+    value: "discover",
+    label: "Discover",
+    icon: Search,
+    description: "Explore all available listings",
+  },
+  {
+    value: "trending",
+    label: "Trending",
+    icon: TrendingUp,
+    description: "Most popular and active listings",
+  },
+  {
+    value: "featured",
+    label: "Featured",
+    icon: Star,
+    description: "Hand-picked and highlighted opportunities",
+  },
+  {
+    value: "my-listings",
+    label: "My Listings",
+    icon: User,
+    description: "Listings you have posted",
+  },
+  {
+    value: "applied",
+    label: "Enquiry",
+    icon: CheckCircle,
+    description: "Listings you have applied for",
+  },
+  {
+    value: "saved",
+    label: "Saved",
+    icon: Bookmark,
+    description: "Your saved listings",
+  },
+];
 export function JobsPageHeader({ 
   currentTab, 
   searchText, 
@@ -30,7 +69,12 @@ export function JobsPageHeader({
         onFiltersChange={onFiltersChange}
         resultCount={resultCount}
       />
-      <JobTabs currentTab={currentTab} />
+            
+          <ResponsiveTabs
+                 tabs={tabs}
+                 currentTab={"discover"}
+                 baseUrl="/dashboard/listings"
+               />
     </>
   )
 }

@@ -15,11 +15,16 @@ import {
   Users,
   MessageCircle,
   Eye,
-  TrendingUp
+  TrendingUp,
+  User
 } from "lucide-react"
 
 // Import the user data
 import { currentUser, feedStats } from "@/lib/user-data"
+import { useGetUser } from "../grapqhl/action"
+import UserAvatar from "../user-avatar"
+import UserCover from "../user-cover"
+import { get } from "http"
 
 export function FeedLeftSidebar() {
   const getStatusColor = (status: string) => {
@@ -46,21 +51,15 @@ export function FeedLeftSidebar() {
     { label: "Views", value: `${(feedStats.viewsThisWeek / 1000).toFixed(1)}K`, icon: Eye },
     { label: "Growth", value: "+5.2%", icon: TrendingUp },
   ]
-
+  const { data: { getUser } = {}, error, loading } = useGetUser();
   return (
     <div className="w-full h-fit sticky top-4">
       {/* User Profile Card */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden pt-0">
         <CardContent className="p-0">
           {/* Cover Image */}
           <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-600">
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              className="absolute top-3 right-3 h-8 w-8 p-0 bg-white/20 hover:bg-white/30 border-0"
-            >
-              <Camera className="h-4 w-4 text-white" />
-            </Button>
+           <UserCover/>
           </div>
           
           {/* Profile Content */}
@@ -68,10 +67,7 @@ export function FeedLeftSidebar() {
             {/* Avatar */}
             <div className="relative -mt-12 mb-4">
               <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                <AvatarFallback className="text-lg">
-                  {currentUser.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
+                <UserAvatar size={85} />
               </Avatar>
               
               {/* Status Indicator */}
@@ -94,35 +90,30 @@ export function FeedLeftSidebar() {
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <h2 className="text-xl font-bold text-gray-900 truncate">
-                    {currentUser.name}
+                    {getUser?.firstName} {getUser?.lastName}
                   </h2>
-                  <p className="text-sm text-gray-600">{currentUser.username}</p>
+                  <p className="text-sm text-gray-600">{getUser?.about?.headline}</p>
                 </div>
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0 -mt-1">
-                  <Edit className="h-4 w-4" />
-                </Button>
+               
               </div>
               
               <div className="space-y-1">
-                <p className="text-base font-medium text-gray-900">{currentUser.designation}</p>
-                <p className="text-sm text-gray-600">{currentUser.company}</p>
-                
+                <p className="text-base font-medium text-gray-900">{getUser?.about?.headline}</p>
+                <p className="text-sm text-gray-600"></p>
+
                 {/* Location and Status */}
                 <div className="flex items-center gap-4 text-sm text-gray-500 pt-1">
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    <span>{currentUser.location}</span>
+                    <span>{getUser?.location?.name}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className={`h-2 w-2 ${getStatusColor(currentUser.status)} rounded-full`}></div>
-                    <span>{getStatusText(currentUser.status)}</span>
-                  </div>
+              
                 </div>
               </div>
 
               {/* Bio */}
               <p className="text-sm text-gray-600 pt-2 leading-relaxed">
-                {currentUser.bio}
+                {getUser?.about?.headline}
               </p>
 
               {/* Achievements */}

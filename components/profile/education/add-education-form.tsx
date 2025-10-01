@@ -1,112 +1,139 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { EducationAutocomplete } from "./education-autocomplete"
+import { Education } from "../../types/education"
+import { v4 as uuidv4 } from "uuid"
 
 interface AddEducationFormProps {
-  onSave: (data: any) => void
-  onCancel: () => void
+  onAdd: (education: Education) => void;
+  onCancel: () => void;
 }
 
-export default function AddEducationForm({ onSave, onCancel }: AddEducationFormProps) {
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date } | undefined>(undefined)
+export function AddEducationForm({ onAdd, onCancel }: AddEducationFormProps) {
+  const [formData, setFormData] = useState({
+    school: { id: "", name: "", logo: "" },
+    degree: "",
+    grade: "",
+    startDate: "",
+    endDate: "",
+    activities: "",
+    description: ""
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, you'd collect form data here
-    const formData = {
-      school: (document.getElementById("school") as HTMLInputElement).value,
-      degree: (document.getElementById("degree") as HTMLInputElement).value,
-      grade: (document.getElementById("grade") as HTMLInputElement).value,
-      period:
-        dateRange?.from && dateRange.to ? `${format(dateRange.from, "yyyy")} - ${format(dateRange.to, "yyyy")}` : "",
-      activities: (document.getElementById("activities") as HTMLTextAreaElement).value,
-      description: (document.getElementById("description") as HTMLTextAreaElement).value,
+    
+    const newEducation: Education = {
+      id: uuidv4(),
+      school: formData.school,
+      degree: formData.degree,
+      grade: formData.grade,
+      duration: [formData.startDate, formData.endDate],
+      activities: formData.activities,
+      description: formData.description
     }
-    onSave(formData)
+
+    onAdd(newEducation)
   }
 
+  const isFormValid = formData.school.name && formData.degree && formData.grade && formData.startDate && formData.endDate && formData.activities
+
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Add New Education</CardTitle>
+        <CardTitle>Add Education</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="school">School/Institute</Label>
-            <Input id="school" placeholder="e.g., University of Example" required />
+          <div className="space-y-2">
+            <Label htmlFor="school">School/Institute *</Label>
+            <EducationAutocomplete
+              onChange={(school) => setFormData({ ...formData, school })}
+              placeholder="Search for a School/Institute"
+            />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="degree">Degree</Label>
-            <Input id="degree" placeholder="e.g., Bachelor of Science" required />
+
+          <div className="space-y-2">
+            <Label htmlFor="degree">Degree *</Label>
+            <Input
+              id="degree"
+              value={formData.degree}
+              onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+              placeholder="e.g. Bachelor of Science"
+              required
+            />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="grade">Grade/GPA</Label>
-            <Input id="grade" placeholder="e.g., 3.8" required />
+
+          <div className="space-y-2">
+            <Label htmlFor="grade">Grade *</Label>
+            <Input
+              id="grade"
+              value={formData.grade}
+              onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+              placeholder="e.g. 3.8 GPA, First Class"
+              required
+            />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="duration">Duration</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="duration"
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dateRange?.from && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(dateRange.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Start Date *</Label>
+              <Input
+                id="startDate"
+                type="month"
+                value={formData.startDate}
+                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="endDate">End Date *</Label>
+              <Input
+                id="endDate"
+                type="month"
+                value={formData.endDate}
+                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                required
+              />
+            </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="activities">Activities</Label>
-            <Textarea id="activities" placeholder="e.g., Dean's List, Student Council" rows={3} />
+
+          <div className="space-y-2">
+            <Label htmlFor="activities">Activities and Societies *</Label>
+            <Textarea
+              id="activities"
+              value={formData.activities}
+              onChange={(e) => setFormData({ ...formData, activities: e.target.value })}
+              placeholder="Describe your activities, societies, and achievements"
+              rows={3}
+              required
+            />
           </div>
-          <div className="grid gap-2">
+
+          <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" placeholder="e.g., Relevant coursework, projects" rows={5} />
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Additional details about your education"
+              rows={3}
+            />
           </div>
-          <div className="flex justify-end gap-2">
+
+          <div className="flex justify-center gap-4 pt-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit">Add Education</Button>
+            <Button type="submit" disabled={!isFormValid}>
+              Add Education
+            </Button>
           </div>
         </form>
       </CardContent>

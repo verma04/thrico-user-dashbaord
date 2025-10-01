@@ -1,14 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { ImageIcon, BarChart3, Briefcase, Compass, Users, Calendar, ShoppingBag } from "lucide-react"
-import { FeedModal } from "./feed-modal"
-import FeedList from "./feed-list"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  ImageIcon,
+  BarChart3,
+  Briefcase,
+  Compass,
+  Users,
+  Calendar,
+  ShoppingBag,
+} from "lucide-react";
+import { FeedModal } from "./feed-modal";
+import FeedList from "./feed-list";
+import UserAvatar from "../user-avatar";
+import { useDrawerStore } from "@/store/drawer-store";
 
 const quickActions = [
   {
@@ -32,7 +42,7 @@ const quickActions = [
     color: "text-purple-600",
     bgColor: "bg-purple-50 hover:bg-purple-100",
   },
-]
+];
 
 const feedTabs = [
   {
@@ -55,49 +65,43 @@ const feedTabs = [
     label: "Listings",
     icon: ShoppingBag,
   },
-]
+];
 
 export function FeedLayout() {
-  const [showOldDesignModal, setShowOldDesignModal] = useState(false)
+  const drawerStore = useDrawerStore();
 
   const handleNewPost = (postData: any) => {
     // Handle new post creation - could be managed at page level or via context
-    console.log("New post created:", postData)
-  }
-
- 
+    console.log("New post created:", postData);
+  };
 
   const handleQuickAction = (actionId: string) => {
     if (actionId === "photo") {
-      setShowOldDesignModal(true)
+      drawerStore.setFeedDrawerOpen(true);
     } else if (actionId === "poll") {
-      setShowOldDesignModal(true)
+      drawerStore.setFeedDrawerOpen(true);
       // Could trigger poll creation directly
     } else if (actionId === "job") {
-      setShowOldDesignModal(true)
+      drawerStore.setFeedDrawerOpen(true);
       // Could trigger job posting creation directly
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
       {/* Enhanced Create Post Section */}
-     <Card className="overflow-hidden">
+      <Card className="overflow-hidden">
         <CardContent className="p-0">
           {/* Main Input Area */}
           <div className="p-4">
             <div className="flex items-start gap-3">
-              <Avatar className="h-12 w-12 ring-2 ring-blue-100">
-                <AvatarImage src="/placeholder.svg?height=48&width=48" />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                  You
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar size={55} />
+
               <div className="flex-1">
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-left text-gray-500 hover:bg-gray-50 bg-gray-50/50 border border-gray-200 rounded-full px-4 py-3 h-auto font-normal transition-all duration-200 hover:border-gray-300"
-                  onClick={() => setShowOldDesignModal(true)}
+                  onClick={() => drawerStore.setFeedDrawerOpen(true)}
                 >
                   <span className="text-base">What's on your mind?</span>
                 </Button>
@@ -112,7 +116,7 @@ export function FeedLayout() {
             <div className="flex items-center justify-between">
               <div className="flex gap-4">
                 {quickActions.map((action) => {
-                  const IconComponent = action.icon
+                  const IconComponent = action.icon;
                   return (
                     <Button
                       key={action.id}
@@ -121,14 +125,16 @@ export function FeedLayout() {
                       className={`flex items-center gap-2 h-auto py-2 px-3 rounded-full transition-all duration-200 ${action.bgColor} border-0`}
                     >
                       <IconComponent className={`h-5 w-5 ${action.color}`} />
-                      <span className={`text-sm font-medium ${action.color}`}>{action.label}</span>
+                      <span className={`text-sm font-medium ${action.color}`}>
+                        {action.label}
+                      </span>
                     </Button>
-                  )
+                  );
                 })}
               </div>
               <Button
-                onClick={() => setShowOldDesignModal(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full px-6 shadow-md hover:shadow-lg transition-all duration-200"
+                onClick={() => drawerStore.setFeedDrawerOpen(true)}
+                className="bg-gradient-to-r from-primary to-primary-foreground hover:from-primary/90 hover:to-primary-foreground/90 text-white rounded-full px-6 shadow-md hover:shadow-lg transition-all duration-200"
               >
                 Post
               </Button>
@@ -137,8 +143,7 @@ export function FeedLayout() {
         </CardContent>
       </Card>
 
-      {/* Feed Tabs */}
-      <Tabs defaultValue="discover" className="w-full mt-6">
+      {/* <Tabs defaultValue="discover" className="w-full mt-6">
         <TabsList className="grid w-full grid-cols-4 h-auto p-0  rounded-none">
           {feedTabs.map((tab) => {
             const IconComponent = tab.icon
@@ -156,16 +161,15 @@ export function FeedLayout() {
             </TabsList>
          
 
-        {/* Tab Content */}
+   
         {feedTabs.map((tab) => (
           <TabsContent key={tab.id} value={tab.id} className="mt-4">
             <FeedList activeTab={tab.id} />
           </TabsContent>
         ))}
-      </Tabs>
-      
-      {/* Old Design Modal */}
-      <FeedModal open={showOldDesignModal} onOpenChange={setShowOldDesignModal} onSubmit={handleNewPost} />
+      </Tabs> */}
+
+      <FeedList />
     </div>
-  )
+  );
 }

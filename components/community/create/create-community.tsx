@@ -1,103 +1,135 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { CommunityCreationForm } from "./community-creation-form"
-import { toast } from "sonner"
-import { X } from "lucide-react"
+import { useState } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { X, Plus } from "lucide-react";
+import { CommunityCreationForm } from "./community-creation-form";
+import { toast } from "sonner";
+import { useDrawerStore } from "@/store/drawer-store";
+import { useIsMobile } from "@/hooks/use-mobile"; // You need to have this hook
 
 interface FormValues {
-  title: string
-  tagline: string
-  description: string
-  privacy: string
-  communityType: string
-  joiningTerms: string
-  requireAdminApprovalForPosts: boolean
-  allowMemberInvites: boolean
-  enableEvents: boolean
-  enableRatingsAndReviews: boolean
+  title: string;
+  tagline: string;
+  description: string;
+  privacy: string;
+  communityType: string;
+  joiningTerms: string;
+  requireAdminApprovalForPosts: boolean;
+  allowMemberInvites: boolean;
+  enableEvents: boolean;
+  enableRatingsAndReviews: boolean;
 }
 
 export default function CreateCommunity() {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [cover, setCover] = useState<string>()
-  const [loading, setLoading] = useState(false)
+  const isDrawerOpen = useDrawerStore((s) => s.isCommunityDrawerOpen);
+  const setDrawerOpen = useDrawerStore((s) => s.setCommunityDrawerOpen);
+  const isMobile = useIsMobile();
+
+  const [cover, setCover] = useState<string>();
+  const [loading, setLoading] = useState(false);
 
   const onCompleted = () => {
-    setOpen(false)
-    toast.success("Community created successfully!")
-  }
+    setDrawerOpen(false);
+    toast.success("Community created successfully!");
+  };
 
   const onFinish = async (values: FormValues) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      console.log("Creating community with values:", values, "and cover:", cover)
-
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      onCompleted()
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      onCompleted();
     } catch (error) {
-      toast.error("Failed to create community. Please try again.")
+      toast.error("Failed to create community. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const handleCancel = () => setDrawerOpen(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-  <SheetTrigger asChild>
-    <Button>Create Community</Button>
-  </SheetTrigger>
-<SheetContent
-  side="bottom"
-  className="w-full !max-w-none h-full overflow-y-auto md:w-[500px]"
-  style={{ width: "100%" }}
->
-    <SheetHeader className="flex flex-row items-center justify-between">
-      <div>
-        <SheetTitle>Create Community</SheetTitle>
-        <SheetDescription>Build your community and connect with like-minded people</SheetDescription>
-      </div>
-      <div className="flex items-center gap-2">
-        <Button
-          disabled={loading}
-          onClick={() => {
-            const form = document.querySelector("form")
-            if (form) {
-              form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }))
-            }
-          }}
-        >
-          {loading ? "Creating..." : "Create"}
-        </Button>
-        <Button variant="outline" onClick={() => setOpen(false)}>
-          Cancel
-        </Button>
-      
-      </div>
-    </SheetHeader>
-
-    <div className="mt-6">
-      <CommunityCreationForm
-        initialValues={{
-          requireAdminApprovalForPosts: false,
-          allowMemberInvites: false,
-          enableEvents: false,
-          enableRatingsAndReviews: false,
-        }}
-        loading={loading}
-        onFinish={onFinish}
-        cover={cover}
-        setCover={setCover}
-      />
-    </div>
-  </SheetContent>
-</Sheet>
-
-  )
+    <Sheet open={isDrawerOpen} onOpenChange={setDrawerOpen}>
+      <SheetTrigger asChild>
+       
+      </SheetTrigger>
+      <SheetContent
+      side={isMobile ? "bottom" : "right"} // Dynamic side based on screen size
+        className={`
+          ${
+            isMobile
+              ? "h-[95vh] w-full rounded-t-lg" // Mobile: bottom drawer, almost full height
+              : "w-full sm:max-w-4xl lg:max-w-6xl" // Desktop: right drawer, wider
+          } 
+          overflow-y-auto p-0
+        `}
+      >
+        <div className="flex flex-col h-full">
+          {/* Sticky Header */}
+          <div
+            className={`
+              flex items-center justify-between p-4 md:p-6 border-b bg-white sticky top-0 z-10
+              ${isMobile ? "flex-col space-y-3" : "flex-row"}
+            `}
+          >
+            <div className={isMobile ? "text-center" : ""}>
+              <SheetTitle className="text-lg md:text-xl font-semibold">
+                Create Community
+              </SheetTitle>
+              <SheetDescription>
+                Build your community and connect with like-minded people
+              </SheetDescription>
+            </div>
+            <div className={`flex items-center space-x-2 ${isMobile ? "w-full" : ""}`}>
+              <Button
+                onClick={() =>
+                  document
+                    .getElementById("community-form")
+                    ?.dispatchEvent(new Event("submit", { bubbles: true }))
+                }
+                disabled={loading}
+                size="sm"
+                className={isMobile ? "flex-1" : ""}
+              >
+                {loading ? "Creating..." : "Create"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCancel}
+                className={isMobile ? "flex-1" : ""}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+          {/* Form Content */}
+          <div className="flex-1 p-4 md:p-6">
+            <CommunityCreationForm
+              initialValues={{
+                requireAdminApprovalForPosts: false,
+                allowMemberInvites: false,
+                enableEvents: false,
+                enableRatingsAndReviews: false,
+              }}
+              loading={loading}
+              onFinish={onFinish}
+              cover={cover}
+              setCover={setCover}
+              formId="community-form"
+            />
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
 }

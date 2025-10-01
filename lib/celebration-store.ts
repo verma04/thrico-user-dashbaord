@@ -51,12 +51,10 @@ export interface CelebrationState {
 }
 
 const celebrationImages: readonly string[] = [
-  "/celebration-confetti.png",
-  "/achievement-trophy.png",
-  "/colorful-party-balloons.png",
-  "/success-rocket.png",
-  "/graduation-cap.png",
-  "/promotion-stairs.png",
+  'https://cdn.thrico.network/vector.png',
+  'https://thrico.blr1.cdn.digitaloceanspaces.com/achivement.png',
+  'https://cdn.thrico.network/celebration.png',
+  'https://cdn.thrico.network/party.png',
 ]
 
 const celebrationTypes: CelebrationOption[] = [

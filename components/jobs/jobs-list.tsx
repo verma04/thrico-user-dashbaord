@@ -443,11 +443,13 @@ export function JobsList({ currentTab, filters }: JobsListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="flex flex-wrap gap-4">
       {filteredJobs.map((job) => (
-        <JobCard key={job.id} job={job} />
+        <div key={job.id} className="w-80 sm:w-[48%] lg:w-[31%]">
+          <JobCard  key={job.id} job={job} />
+        </div>
       ))}
-      <div className="col-span-full text-center mt-6">
+      <div className="w-full text-center mt-6">
         <Button variant="outline" size="lg" className="w-full sm:w-auto bg-transparent">
           Load More Jobs
         </Button>

@@ -28,6 +28,7 @@ import {
   X,
   Upload,
 } from "lucide-react"
+import UserAvatar from "./user-avatar"
 
 interface CreatePostModalProps {
   trigger?: React.ReactNode
@@ -122,10 +123,7 @@ export function CreatePostModal({ trigger }: CreatePostModalProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-4">
-                  <Avatar>
-                    <AvatarImage src="/placeholder.svg?height=40&width=40" alt="You" />
-                    <AvatarFallback>SC</AvatarFallback>
-                  </Avatar>
+                  <UserAvatar />
                   <div className="flex-1 space-y-4">
                     <Textarea
                       placeholder="What's on your mind?"
